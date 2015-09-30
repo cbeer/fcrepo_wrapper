@@ -1,0 +1,32 @@
+#!/usr/bin/env ruby
+
+require 'fcrepo_wrapper'
+require 'optparse'
+
+options = {}
+collection_options = {}
+OptionParser.new do |opts|
+  opts.banner = "Usage: fcrepo_wrapper [options]"
+
+  opts.on("-v", "--[no-]verbose", "Run verbosely") do |v|
+    options[:verbose] = v
+  end
+
+  opts.on("--version VERSION", "Specify a fcrepo version to download (default: #{FcrepoWrapper.default_solr_version})") do |v|
+    options[:version] = v
+  end
+
+  opts.on("-pPORT", "--port PORT", "Specify the port fcrepo should run at (default: 8080)") do |p|
+    options[:port] = p
+  end
+end.parse!
+
+# default to verbose
+options[:verbose] = true if options[:verbose].nil?
+
+FcrepoWrapper.wrap(options) do |conn|
+  with_collection(collection_options)
+  while conn.status
+    sleep 1
+  end
+end
