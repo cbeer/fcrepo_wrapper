@@ -12,7 +12,7 @@ OptionParser.new do |opts|
     options[:verbose] = v
   end
 
-  opts.on("--version VERSION", "Specify a fcrepo version to download (default: #{FcrepoWrapper.default_solr_version})") do |v|
+  opts.on("--version VERSION", "Specify a fcrepo version to download (default: #{FcrepoWrapper.default_fcrepo_version})") do |v|
     options[:version] = v
   end
 
@@ -25,7 +25,6 @@ end.parse!
 options[:verbose] = true if options[:verbose].nil?
 
 FcrepoWrapper.wrap(options) do |conn|
-  with_collection(collection_options)
   while conn.status
     sleep 1
   end
