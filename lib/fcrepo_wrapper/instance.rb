@@ -5,7 +5,6 @@ require 'ruby-progressbar'
 require 'securerandom'
 require 'stringio'
 require 'tmpdir'
-require 'byebug'
 require 'service_instance'
 
 module FcrepoWrapper
@@ -162,7 +161,6 @@ module FcrepoWrapper
 
       jar_file = download
 
-      byebug
       FileUtils.mkdir_p instance_dir
       FileUtils.cp jar_file, binary_path
       self.extracted_version = version
