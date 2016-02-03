@@ -26,6 +26,7 @@ module FcrepoWrapper
     # @option options [Boolean] :verbose
     # @option options [Boolean] :managed
     # @option options [Boolean] :ignore_md5sum
+    # @option options [Array<String>] :java_options a list of options to pass to the JVM
     # @option options [Hash] :fcrepo_options
     # @option options [Hash] :env
     def initialize(options = {})
@@ -39,14 +40,24 @@ module FcrepoWrapper
       stop
     end
 
+    # @return a list of arguments to pass to the JVM
+    def java_options
+      options.fetch(:java_options, []) + ['-jar', binary_path]
+    end
+
+    def process_arguments
+      ["java"] + java_options +
+        fcrepo_options.merge(port: port)
+          .map { |k, v| ["--#{k}", "#{v}"].reject(&:empty?) }.flatten
+    end
+
     ##
     # Start Solr and wait for it to become available
     def start
       extract
       if managed?
-        args = ["java", "-jar", binary_path] + fcrepo_options.merge(port: port).map { |k, v| ["--#{k}", "#{v}"].reject(&:empty?) }.flatten
 
-        @pid = spawn(env, *args)
+        @pid = spawn(env, *process_arguments)
 
         # Wait for fcrepo to start
         until status
