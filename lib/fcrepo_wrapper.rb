@@ -3,7 +3,7 @@ require 'fcrepo_wrapper/instance'
 
 module FcrepoWrapper
   def self.default_fcrepo_version
-    '4.3.0'
+    '4.5.0'
   end
 
   def self.default_instance(options = {})
