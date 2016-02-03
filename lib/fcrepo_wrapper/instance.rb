@@ -42,7 +42,16 @@ module FcrepoWrapper
 
     # @return a list of arguments to pass to the JVM
     def java_options
-      options.fetch(:java_options, []) + ['-jar', binary_path]
+      options.fetch(:java_options, default_java_options) + ['-jar', binary_path]
+    end
+
+    def default_java_options
+      ['-Dfcrepo.log.http.api=WARN',
+      # To avoid "WARN: The namespace of predicate:
+      # info:fedora/fedora-system:def/relations-external#isPartOf
+      # was possibly misinterpreted as:
+      # info:fedora/fedora-system:def/relations-external#."
+      '-Dfcrepo.log.kernel=ERROR']
     end
 
     def process_arguments
