@@ -50,7 +50,8 @@ module FcrepoWrapper
       # info:fedora/fedora-system:def/relations-external#isPartOf
       # was possibly misinterpreted as:
       # info:fedora/fedora-system:def/relations-external#."
-      '-Dfcrepo.log.kernel=ERROR']
+      '-Dfcrepo.log.kernel=ERROR',
+      '-Xmx512m']
     end
 
     def process_arguments
