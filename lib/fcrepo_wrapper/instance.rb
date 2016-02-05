@@ -1,6 +1,7 @@
 require 'digest'
 require 'fileutils'
 require 'json'
+require 'net/http'
 require 'open-uri'
 require 'ruby-progressbar'
 require 'securerandom'
