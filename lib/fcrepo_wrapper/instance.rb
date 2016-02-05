@@ -1,31 +1,30 @@
 require 'digest'
 require 'fileutils'
+require 'json'
 require 'open-uri'
 require 'ruby-progressbar'
 require 'securerandom'
+require 'socket'
 require 'stringio'
 require 'tmpdir'
-require 'service_instance'
 
 module FcrepoWrapper
   class Instance
-    include ServiceInstance
     attr_reader :options, :pid
 
     ##
     # @param [Hash] options
     # @option options [String] :url
-    # @option options [String] :version
-    # @option options [String] :port
-    # @option options [String] :version_file
-    # @option options [String] :instance_dir
-    # @option options [String] :download_path
-    # @option options [String] :md5sum
-    # @option options [String] :xml
-    # @option options [Boolean] :verbose
-    # @option options [Boolean] :managed
+    # @option options [String] :instance_dir Directory to store the fcrepo index files
+    # @option options [String] :version Fcrepo version to download and install
+    # @option options [String] :port port to run fcrepo on
+    # @option options [String] :version_file Local path to store the currently installed version
+    # @option options [String] :download_dir Local directory to store the downloaded fcrepo jar and its md5 file in (overridden by :download_path)
+    # @option options [String] :download_path Local path for storing the downloaded fcrepo jar file
+    # @option options [Boolean] :validate Should fcrepo_wrapper download a new md5 and (re-)validate the zip file? (default: trueF)
+    # @option options [String] :md5sum Path/URL to MD5 checksum
+    # @option options [Boolean] :verbose return verbose info when running fcrepo commands
     # @option options [Boolean] :ignore_md5sum
-    # @option options [Array<String>] :java_options a list of options to pass to the JVM
     # @option options [Hash] :fcrepo_options
     # @option options [Hash] :env
     def initialize(options = {})
@@ -33,6 +32,7 @@ module FcrepoWrapper
     end
 
     def wrap(&_block)
+      extract_and_configure
       start
       yield self
     ensure
@@ -51,7 +51,12 @@ module FcrepoWrapper
       # was possibly misinterpreted as:
       # info:fedora/fedora-system:def/relations-external#."
       '-Dfcrepo.log.kernel=ERROR',
-      '-Xmx512m']
+      ("-Dfcrepo.home=#{fcrepo_home_dir}" if fcrepo_home_dir),
+      '-Xmx512m'].compact
+    end
+
+    def fcrepo_home_dir
+      options[:fcrepo_home_dir]
     end
 
     def process_arguments
@@ -61,15 +66,14 @@ module FcrepoWrapper
     end
 
     ##
-    # Start Solr and wait for it to become available
+    # Start fcrepo and wait for it to become available
     def start
-      extract
+      extract_and_configure
       if managed?
-
         @pid = spawn(env, *process_arguments)
 
         # Wait for fcrepo to start
-        until status
+        while !status
           sleep 1
         end
       end
@@ -93,6 +97,15 @@ module FcrepoWrapper
     end
 
     ##
+    # Stop fcrepo and wait for it to finish exiting
+    def restart
+      if managed? && started?
+        stop
+        start
+      end
+    end
+
+    ##
     # Check the status of a managed fcrepo service
     def status
       return true unless managed?
@@ -101,7 +114,12 @@ module FcrepoWrapper
       begin
         Process.getpgid(pid)
 
-        TCPSocket.new('127.0.0.1', port).close
+        TCPSocket.new(host, port).close
+
+        Net::HTTP.start(host, port) do |http|
+          http.request(Net::HTTP::Get.new('/'))
+        end
+
         true
       rescue Errno::ESRCH, Errno::ECONNREFUSED
         false
@@ -109,54 +127,64 @@ module FcrepoWrapper
     end
 
     ##
+    # Is fcrepo running?
+    def started?
+      !!status
+    end
+
+    ##
+    # Get the host this fcrepo instance is bound to
+    def host
+      '127.0.0.1'
+    end
+
+    ##
     # Get the port this fcrepo instance is running at
     def port
-      options.fetch(:port, "8080").to_s
+      @port ||= options[:port]
+      @port ||= random_open_port.to_s
+    end
+
+    ##
+    # Clean up any files fcrepo_wrapper may have downloaded
+    def clean!
+      stop
+      remove_instance_dir!
+      FileUtils.remove_entry(download_path) if File.exists?(download_path)
+      FileUtils.remove_entry(tmp_save_dir, true) if File.exists? tmp_save_dir
+      FileUtils.remove_entry(md5sum_path) if File.exists? md5sum_path
+      FileUtils.remove_entry(version_file) if File.exists? version_file
+    end
+
+    ##
+    # Clean up any files in the fcrepo instance dir
+    def remove_instance_dir!
+      FileUtils.remove_entry(instance_dir, true) if File.exists? instance_dir
     end
 
     ##
     # Get a (likely) URL to the fcrepo instance
     def url
-      "http://127.0.0.1:#{port}/rest/"
+      "http://#{host}:#{port}/"
     end
 
-    private
-
-    def default_download_url
-      @default_url ||= "https://github.com/fcrepo4/fcrepo4/releases/download/fcrepo-#{version}/fcrepo-webapp-#{version}-jetty-console.jar"
+    def configure
+      raise_error_unless_extracted
     end
 
-    def md5url
-      "https://github.com/fcrepo4/fcrepo4/releases/download/fcrepo-#{version}/fcrepo-webapp-#{version}-jetty-console.jar.md5"
+    def instance_dir
+      @instance_dir ||= options.fetch(:instance_dir, File.join(Dir.tmpdir, File.basename(download_url, ".jar")))
     end
 
-    def version
-      @version ||= options.fetch(:version, default_fcrepo_version)
-    end
-
-    def fcrepo_options
-      options.fetch(:fcrepo_options, headless: nil)
-    end
-
-    def default_fcrepo_version
-      FcrepoWrapper.default_fcrepo_version
-    end
-
-    def default_instance_dir
-      File.join(Dir.tmpdir, File.basename(download_url, ".jar"))
-    end
-
-    def managed?
-      !!options.fetch(:managed, true)
-    end
-
-    def binary_path
-      File.join(instance_dir, "fcrepo-webapp-#{version}-jetty-console.jar")
+    def extract_and_configure
+      instance_dir = extract
+      configure
+      instance_dir
     end
 
     # extract a copy of fcrepo to instance_dir
     # Does noting if fcrepo already exists at instance_dir
-    # @return [String] instance_dir Directory where solr has been installed
+    # @return [String] instance_dir Directory where fcrepo has been installed
     def extract
       return instance_dir if extracted?
 
@@ -167,6 +195,147 @@ module FcrepoWrapper
       self.extracted_version = version
 
       instance_dir
+    end
+    # rubocop:enable Lint/RescueException
+
+    def version
+      @version ||= options.fetch(:version, FcrepoWrapper.default_fcrepo_version)
+    end
+
+    protected
+
+    def extracted?
+      File.exists?(binary_path) && extracted_version == version
+    end
+
+    def download
+      unless File.exists?(download_path) && validate?(download_path)
+        fetch_with_progressbar download_url, download_path
+        validate! download_path
+      end
+      download_path
+    end
+
+    def validate?(file)
+      return true if options[:validate] == false
+
+      Digest::MD5.file(file).hexdigest == expected_md5sum
+    end
+
+    def validate!(file)
+      unless validate? file
+        raise "MD5 mismatch" unless options[:ignore_md5sum]
+      end
+    end
+
+    private
+
+    def download_url
+      @download_url ||= options.fetch(:url, default_download_url)
+    end
+
+    def default_download_url
+      @default_url ||= "https://github.com/fcrepo4/fcrepo4/releases/download/fcrepo-#{version}/fcrepo-webapp-#{version}-jetty-console.jar"
+    end
+
+    def md5url
+      "https://github.com/fcrepo4/fcrepo4/releases/download/fcrepo-#{version}/fcrepo-webapp-#{version}-jetty-console.jar.md5"
+    end
+
+    def fcrepo_options
+      options.fetch(:fcrepo_options, headless: nil)
+    end
+
+    def env
+      options.fetch(:env, {})
+    end
+
+    def download_path
+      @download_path ||= options.fetch(:download_path, default_download_path)
+    end
+
+    def default_download_path
+      File.join(download_dir, File.basename(download_url))
+    end
+
+    def download_dir
+      @download_dir ||= options.fetch(:download_dir, Dir.tmpdir)
+      FileUtils.mkdir_p @download_dir
+      @download_dir
+    end
+
+    def verbose?
+      !!options.fetch(:verbose, false)
+    end
+
+    def managed?
+      File.exists?(instance_dir)
+    end
+
+    def version_file
+      options.fetch(:version_file, File.join(instance_dir, "VERSION"))
+    end
+
+    def expected_md5sum
+      @md5sum ||= options.fetch(:md5sum, open(md5file).read.split(" ").first)
+    end
+
+    def binary_path
+      File.join(instance_dir, "fcrepo-webapp-#{version}-jetty-console.jar")
+    end
+
+    def md5sum_path
+      File.join(download_dir, File.basename(md5url))
+    end
+
+    def tmp_save_dir
+      @tmp_save_dir ||= Dir.mktmpdir
+    end
+
+    def fetch_with_progressbar(url, output)
+      pbar = ProgressBar.create(title: File.basename(url), total: nil, format: "%t: |%B| %p%% (%e )")
+      open(url, content_length_proc: lambda do|t|
+        if t && 0 < t
+          pbar.total = t
+        end
+      end,
+                progress_proc: lambda do|s|
+                  pbar.progress = s
+                end) do |io|
+        IO.copy_stream(io, output)
+      end
+    end
+
+    def md5file
+      unless File.exists? md5sum_path
+        fetch_with_progressbar md5url, md5sum_path
+      end
+
+      md5sum_path
+    end
+
+    def extracted_version
+      File.read(version_file).strip if File.exists? version_file
+    end
+
+    def extracted_version=(version)
+      File.open(version_file, "w") do |f|
+        f.puts version
+      end
+    end
+
+    def random_open_port
+      socket = Socket.new(:INET, :STREAM, 0)
+      begin
+        socket.bind(Addrinfo.tcp('127.0.0.1', 0))
+        socket.local_address.ip_port
+      ensure
+        socket.close
+      end
+    end
+
+    def raise_error_unless_extracted
+      raise RuntimeError, "there is no fcrepo instance at #{instance_dir}.  Run FcrepoWrapper.extract first." unless extracted?
     end
   end
 end
