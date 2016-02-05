@@ -4,7 +4,7 @@ require 'fcrepo_wrapper'
 require 'optparse'
 
 options = {}
-collection_options = {}
+
 OptionParser.new do |opts|
   opts.banner = "Usage: fcrepo_wrapper [options]"
 
@@ -12,20 +12,43 @@ OptionParser.new do |opts|
     options[:verbose] = v
   end
 
+  opts.on("--[no-]jms", "Run without JMS") do |v|
+    options[:enable_jms] = v
+  end
+
   opts.on("--version VERSION", "Specify a fcrepo version to download (default: #{FcrepoWrapper.default_fcrepo_version})") do |v|
     options[:version] = v
   end
 
-  opts.on("-pPORT", "--port PORT", "Specify the port fcrepo should run at (default: 8080)") do |p|
-    options[:port] = p
+  opts.on("-pPORT", "--port PORT", "Specify the port fcrepo should run at (default: 8983)") do |p|
+    if p == 'random'
+      options[:port] = nil
+    else
+      options[:port] = p
+    end
+  end
+
+  opts.on("-iDIR", "--instance_directory DIR", "Install/use fcrepo jar at the given directory") do |d|
+    options[:instance_dir] = d
+  end
+
+  opts.on("-dDIR", "--fcrepo_home DIR", "Store fcrepo at the given directory") do |d|
+    options[:fcrepo_home_dir] = d
   end
 end.parse!
 
 # default to verbose
 options[:verbose] = true if options[:verbose].nil?
 
-FcrepoWrapper.wrap(options) do |conn|
-  while conn.status
-    sleep 1
+instance = FcrepoWrapper.default_instance(options)
+$stderr.print "Starting Fedora #{instance.version} on port #{instance.port} ... "
+instance.wrap do |conn|
+  $stderr.puts "http://#{instance.host}:#{instance.port}/"
+  begin
+    while conn.status
+      sleep 1
+    end
+  rescue Interrupt
+    $stderr.puts "Fedora is shutting down."
   end
 end
