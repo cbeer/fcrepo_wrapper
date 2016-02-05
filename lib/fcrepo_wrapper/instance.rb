@@ -52,6 +52,7 @@ module FcrepoWrapper
       # info:fedora/fedora-system:def/relations-external#."
       '-Dfcrepo.log.kernel=ERROR',
       ("-Dfcrepo.home=#{fcrepo_home_dir}" if fcrepo_home_dir),
+      ("-Dfcrepo.spring.jms.configuration=#{spring_noop_file}" unless jms_enabled?),
       '-Xmx512m'].compact
     end
 
@@ -336,6 +337,14 @@ module FcrepoWrapper
 
     def raise_error_unless_extracted
       raise RuntimeError, "there is no fcrepo instance at #{instance_dir}.  Run FcrepoWrapper.extract first." unless extracted?
+    end
+
+    def spring_noop_file
+      'file://' + File.expand_path('../../../data/spring-noop.xml', __FILE__)
+    end
+
+    def jms_enabled?
+      options.fetch(:enable_jms, true)
     end
   end
 end

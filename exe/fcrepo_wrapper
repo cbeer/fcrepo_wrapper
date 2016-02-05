@@ -12,6 +12,10 @@ OptionParser.new do |opts|
     options[:verbose] = v
   end
 
+  opts.on("--[no-]jms", "Run without JMS") do |v|
+    options[:enable_jms] = v
+  end
+
   opts.on("--version VERSION", "Specify a fcrepo version to download (default: #{FcrepoWrapper.default_fcrepo_version})") do |v|
     options[:version] = v
   end
