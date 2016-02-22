@@ -115,7 +115,11 @@ module FcrepoWrapper
 
       begin
         Process.getpgid(pid)
+      rescue Errno::ESRCH
+        return false
+      end
 
+      begin
         TCPSocket.new(host, port).close
 
         Net::HTTP.start(host, port) do |http|
@@ -123,7 +127,7 @@ module FcrepoWrapper
         end
 
         true
-      rescue Errno::ESRCH, Errno::ECONNREFUSED
+      rescue Errno::ECONNREFUSED, Errno::EINVAL
         false
       end
     end
