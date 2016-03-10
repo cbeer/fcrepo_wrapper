@@ -32,6 +32,10 @@ module FcrepoWrapper
       @config = Settings.new(Configuration.new(options))
     end
 
+    def md5
+      @md5 ||= MD5.new(config)
+    end
+
     def wrap(&_block)
       extract_and_configure
       start
@@ -145,7 +149,7 @@ module FcrepoWrapper
       remove_instance_dir!
       FileUtils.remove_entry(config.download_path) if File.exists?(config.download_path)
       FileUtils.remove_entry(config.tmp_save_dir, true) if File.exists? config.tmp_save_dir
-      FileUtils.remove_entry(config.md5sum_path) if File.exists? config.md5sum_path
+      md5.clean!
       FileUtils.remove_entry(config.version_file) if File.exists? config.version_file
     end
 
@@ -189,52 +193,13 @@ module FcrepoWrapper
 
     def download
       unless File.exists?(config.download_path) && validate?(config.download_path)
-        fetch_with_progressbar config.download_url, config.download_path
+        Downloader.fetch_with_progressbar config.download_url, config.download_path
         validate! config.download_path
       end
       config.download_path
     end
 
-    def validate?(file)
-      return true if options[:validate] == false
-
-      Digest::MD5.file(file).hexdigest == expected_md5sum
-    end
-
-    def validate!(file)
-      unless validate? file
-        raise "MD5 mismatch" unless options[:ignore_md5sum]
-      end
-    end
-
     private
-
-
-    def expected_md5sum
-      @md5sum ||= options.fetch(:md5sum, open(config.md5file).read.split(" ").first)
-    end
-
-    def fetch_with_progressbar(url, output)
-      pbar = ProgressBar.create(title: File.basename(url), total: nil, format: "%t: |%B| %p%% (%e )")
-      open(url, content_length_proc: lambda do|t|
-        if t && 0 < t
-          pbar.total = t
-        end
-      end,
-                progress_proc: lambda do|s|
-                  pbar.progress = s
-                end) do |io|
-        IO.copy_stream(io, output)
-      end
-    end
-
-    def md5file
-      unless File.exists? config.md5sum_path
-        fetch_with_progressbar config.md5url, config.md5sum_path
-      end
-
-      config.md5sum_path
-    end
 
     def extracted_version
       File.read(config.version_file).strip if File.exists? config.version_file

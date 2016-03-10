@@ -1,6 +1,8 @@
 require 'fcrepo_wrapper/version'
 require 'fcrepo_wrapper/configuration'
 require 'fcrepo_wrapper/settings'
+require 'fcrepo_wrapper/downloader'
+require 'fcrepo_wrapper/md5'
 require 'fcrepo_wrapper/instance'
 
 module FcrepoWrapper
