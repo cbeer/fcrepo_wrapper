@@ -11,5 +11,5 @@ end
 ## Basic Options
 
 ```ruby
-FcrepoWrapper.wrap port: 8983, verbose: true, managed: true 
+FcrepoWrapper.wrap port: 8983, verbose: true, managed: true
 ```
