@@ -141,7 +141,6 @@ module FcrepoWrapper
       config.version
     end
 
-
     ##
     # Clean up any files fcrepo_wrapper may have downloaded
     def clean!

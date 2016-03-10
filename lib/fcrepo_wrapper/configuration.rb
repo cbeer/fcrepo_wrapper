@@ -2,7 +2,8 @@ module FcrepoWrapper
   class Configuration
     attr_reader :options
     def initialize(options)
-      @options = options
+      @options = read_config(options[:config], options[:verbose])
+                   .merge options
     end
 
     def instance_dir
@@ -90,6 +91,30 @@ module FcrepoWrapper
     end
 
     private
+
+      def read_config(config_file, verbose)
+        default_configuration_paths.each do |p|
+          path = File.expand_path(p)
+          config_file ||= path if File.exist? path
+        end
+
+        unless config_file
+          $stdout.puts "No config specified" if verbose
+          return {}
+        end
+
+        $stdout.puts "Loading configuration from #{config_file}" if verbose
+        config = YAML.load(ERB.new(IO.read(config_file)).result(binding))
+        unless config
+          $stderr.puts "Unable to parse config #{config_file}" if verbose
+          return {}
+        end
+        config.each_with_object({}) { |(k, v), h| h[k.to_sym] = v.to_s }
+      end
+
+      def default_configuration_paths
+        ['.fcrepo_wrapper', '~/.fcrepo_wrapper']
+      end
 
       def download_dir
         @download_dir ||= options.fetch(:download_dir, Dir.tmpdir)
