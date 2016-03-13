@@ -1,5 +1,6 @@
 require 'fcrepo_wrapper/version'
 require 'fcrepo_wrapper/instance'
+require 'fcrepo_wrapper/railtie' if defined?(Rails)
 
 module FcrepoWrapper
   def self.default_fcrepo_version
