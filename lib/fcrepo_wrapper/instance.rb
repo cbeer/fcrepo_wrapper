@@ -22,7 +22,7 @@ module FcrepoWrapper
     # @option options [String] :version_file Local path to store the currently installed version
     # @option options [String] :download_dir Local directory to store the downloaded fcrepo jar and its md5 file in (overridden by :download_path)
     # @option options [String] :download_path Local path for storing the downloaded fcrepo jar file
-    # @option options [Boolean] :validate Should fcrepo_wrapper download a new md5 and (re-)validate the zip file? (default: trueF)
+    # @option options [Boolean] :validate Should fcrepo_wrapper download a new md5 and (re-)false the zip file? (default: trueF)
     # @option options [String] :md5sum Path/URL to MD5 checksum
     # @option options [Boolean] :verbose return verbose info when running fcrepo commands
     # @option options [Boolean] :ignore_md5sum

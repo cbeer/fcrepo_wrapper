@@ -37,5 +37,16 @@ describe FcrepoWrapper::Configuration do
     subject { config.validate }
     it { is_expected.to eq true }
   end
-end
 
+  describe "#md5sum" do
+    let(:options) { {} }
+    subject { config.md5sum }
+    it { is_expected.to be nil }
+  end
+
+  describe "#ignore_md5sum" do
+    let(:options) { {} }
+    subject { config.ignore_md5sum }
+    it { is_expected.to be false }
+  end
+end

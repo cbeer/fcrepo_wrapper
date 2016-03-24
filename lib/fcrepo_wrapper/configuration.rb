@@ -22,6 +22,10 @@ module FcrepoWrapper
       @download_path ||= options.fetch(:download_path, default_download_path)
     end
 
+    def ignore_md5sum
+      options.fetch(:ignore_md5sum, false)
+    end
+
     def md5sum_path
       File.join(download_dir, File.basename(md5url))
     end
@@ -92,6 +96,10 @@ module FcrepoWrapper
 
     def validate
       options.fetch(:validate, true)
+    end
+
+    def md5sum
+      options.fetch(:md5sum, nil)
     end
 
     private
