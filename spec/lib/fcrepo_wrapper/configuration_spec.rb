@@ -30,7 +30,12 @@ describe FcrepoWrapper::Configuration do
     it "uses values from the config file" do
       expect(config.port).to eq '9999'
     end
+  end
 
+  describe "#validate" do
+    let(:options) { {} }
+    subject { config.validate }
+    it { is_expected.to eq true }
   end
 end
 

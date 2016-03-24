@@ -90,6 +90,10 @@ module FcrepoWrapper
       options[:port] || FcrepoWrapper.default_instance_options[:port]
     end
 
+    def validate
+      options.fetch(:validate, true)
+    end
+
     private
 
       def read_config(config_file, verbose)
