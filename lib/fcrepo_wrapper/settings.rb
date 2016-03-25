@@ -1,3 +1,4 @@
+require 'delegate'
 module FcrepoWrapper
   # Configuraton that comes from static and dynamic sources.
   class Settings < Delegator
