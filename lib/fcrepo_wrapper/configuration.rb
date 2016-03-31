@@ -1,3 +1,7 @@
+require 'yaml'
+require 'erb'
+require 'socket'
+
 module FcrepoWrapper
   class Configuration
     attr_reader :options
