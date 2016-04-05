@@ -27,5 +27,14 @@ describe FcrepoWrapper::Instance do
     subject { wrapper.md5 }
     it { is_expected.to be_instance_of FcrepoWrapper::MD5 }
   end
-end
 
+  describe "#instance_dir" do
+    subject { File.exists?(wrapper.instance_dir) }
+    it { is_expected.to be true }
+  end
+
+  describe "#options" do
+    subject { wrapper.options }
+    it { is_expected.to eq({}) }
+  end 
+end

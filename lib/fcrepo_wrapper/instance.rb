@@ -141,6 +141,14 @@ module FcrepoWrapper
       config.version
     end
 
+    def instance_dir
+      config.instance_dir
+    end
+
+    def options
+      config.options
+    end
+
     ##
     # Clean up any files fcrepo_wrapper may have downloaded
     def clean!
