@@ -199,7 +199,7 @@ module FcrepoWrapper
     end
 
     def download
-      unless File.exists?(config.download_path) && validate?(config.download_path)
+      unless File.exists?(config.download_path) && md5.validate?(config.download_path)
         Downloader.fetch_with_progressbar config.download_url, config.download_path
         md5.validate! config.download_path
       end
