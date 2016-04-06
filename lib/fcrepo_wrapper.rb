@@ -22,7 +22,7 @@ module FcrepoWrapper
   end
 
   def self.default_instance(options = {})
-    @default_instance ||= FcrepoWrapper::Instance.new default_instance_options.merge(options)
+    @default_instance ||= FcrepoWrapper::Instance.new options
   end
 
   ##
