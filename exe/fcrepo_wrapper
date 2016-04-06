@@ -8,7 +8,7 @@ options = {}
 OptionParser.new do |opts|
   opts.banner = "Usage: fcrepo_wrapper [options]"
 
-  opts.on("--config", "Load configuration from a file") do |v|
+  opts.on("-cFILE",  "--config FILE", "Load configuration from a file") do |v|
     options[:config] = v
   end
 
