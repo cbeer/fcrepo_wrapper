@@ -5,10 +5,10 @@ require 'optparse'
 
 options = {}
 
-OptionParser.new do |opts|
+args = OptionParser.new do |opts|
   opts.banner = "Usage: fcrepo_wrapper [options]"
 
-  opts.on("--config", "Load configuration from a file") do |v|
+  opts.on("--config FILE", "Load configuration from a file") do |v|
     options[:config] = v
   end
 
@@ -16,7 +16,7 @@ OptionParser.new do |opts|
     options[:verbose] = v
   end
 
-  opts.on("--[no-]jms", "Run without JMS") do |v|
+  opts.on("--[no-]jms", "Run with[or witout] JMS") do |v|
     options[:enable_jms] = v
   end
 
@@ -39,7 +39,20 @@ OptionParser.new do |opts|
   opts.on("-dDIR", "--fcrepo_home DIR", "Store fcrepo at the given directory") do |d|
     options[:fcrepo_home_dir] = d
   end
-end.parse!
+
+  opts.on("-h", "--help", "Show these usage options") do
+    puts opts
+    exit
+  end
+end
+
+begin
+  args.parse!
+rescue => error
+  $stderr.puts "ERROR: #{error}\n"
+  $stderr.puts "#{args.help}\n"
+  exit 1
+end
 
 # default to verbose
 options[:verbose] = true if options[:verbose].nil?
