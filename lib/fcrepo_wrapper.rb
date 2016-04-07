@@ -10,19 +10,12 @@ module FcrepoWrapper
     '4.5.0'
   end
 
-  def self.default_instance_options
-    @default_instance_options ||= {
-      port: '8080',
-      version: FcrepoWrapper.default_fcrepo_version
-    }
-  end
-
-  def self.default_instance_options=(options)
-    @default_instance_options = options
+  def self.default_fcrepo_port
+    '8080'
   end
 
   def self.default_instance(options = {})
-    @default_instance ||= FcrepoWrapper::Instance.new default_instance_options.merge(options)
+    @default_instance ||= FcrepoWrapper::Instance.new options
   end
 
   ##

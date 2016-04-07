@@ -24,7 +24,7 @@ args = OptionParser.new do |opts|
     options[:version] = v
   end
 
-  opts.on("-pPORT", "--port PORT", "Specify the port fcrepo should run at (default: 8080)") do |p|
+  opts.on("-pPORT", "--port PORT", "Specify the port fcrepo should run at (default: #{FcrepoWrapper.default_fcrepo_port})") do |p|
     if p == 'random'
       options[:port] = nil
     else

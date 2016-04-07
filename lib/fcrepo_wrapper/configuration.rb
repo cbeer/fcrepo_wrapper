@@ -95,7 +95,7 @@ module FcrepoWrapper
       # Check if the port option has been explicitly set to nil.
       # this means to start fcrepo_wrapper on a random open port
       return nil if options.key?(:port) && !options[:port]
-      options[:port] || FcrepoWrapper.default_instance_options[:port]
+      options[:port] || FcrepoWrapper.default_fcrepo_port
     end
 
     def validate
@@ -132,8 +132,16 @@ module FcrepoWrapper
         ['.fcrepo_wrapper', '~/.fcrepo_wrapper']
       end
 
+      def default_download_dir
+        if defined? Rails
+          File.join(Rails.root, 'tmp')
+        else
+          Dir.tmpdir
+        end
+      end
+
       def download_dir
-        @download_dir ||= options.fetch(:download_dir, Dir.tmpdir)
+        @download_dir ||= options.fetch(:download_dir, default_download_dir)
         FileUtils.mkdir_p @download_dir
         @download_dir
       end
