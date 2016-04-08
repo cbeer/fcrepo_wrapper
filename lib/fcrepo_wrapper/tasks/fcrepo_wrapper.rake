@@ -4,7 +4,6 @@ require 'fcrepo_wrapper'
 namespace :fcrepo do
   desc "Load the fcrepo options and fcrepo instance"
   task :environment do
-    FcrepoWrapper.default_instance_options[:download_dir] ||= Rails.root.to_s + '/tmp' if defined? Rails
     @fcrepo_instance = FcrepoWrapper.default_instance
   end
 
