@@ -125,7 +125,7 @@ module FcrepoWrapper
           $stderr.puts "Unable to parse config #{config_file}" if verbose
           return {}
         end
-        config.each_with_object({}) { |(k, v), h| h[k.to_sym] = v.to_s }
+        config.each_with_object({}) { |(k, v), h| h[k.to_sym] = v }
       end
 
       def default_configuration_paths

@@ -15,7 +15,7 @@ describe FcrepoWrapper::MD5 do
     end
 
     context "with a correct checksum" do
-      let(:options) { { md5sum: 'de0b8ccf94db635e149b4c01027b34c1' } }
+      let(:options) { { md5sum: '75e5b2fea7e7b756fa4ad4ca58e96b8c' } }
       it "doesn't raise an error" do
         expect { subject }.not_to raise_error
       end

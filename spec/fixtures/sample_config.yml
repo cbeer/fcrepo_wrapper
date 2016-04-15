@@ -1,1 +1,5 @@
 port: 9999
+version_file: path/to/VERSION
+enable_jms: no
+verbose: false
+validate: yes
