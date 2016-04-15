@@ -27,9 +27,20 @@ describe FcrepoWrapper::Configuration do
       allow(config).to receive(:default_configuration_paths).and_return([])
     end
     let(:options) { { config: 'spec/fixtures/sample_config.yml' } }
+
     it "uses values from the config file" do
-      expect(config.port).to eq '9999'
+      expect(config.version_file).to eq 'path/to/VERSION'
     end
+    it "evalates yaml true values as ruby booleans" do
+      expect(config.validate).to be true
+    end
+    it "evaluates yaml false values as ruby booleans" do
+      expect(config.verbose?).to be false
+    end
+    it "doesn't cast numerics to strings" do
+      expect(config.port).to eq 9999
+    end
+
   end
 
   describe "#validate" do
