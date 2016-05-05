@@ -88,7 +88,13 @@ module FcrepoWrapper
     end
 
     def fcrepo_home_dir
-      options[:fcrepo_home_dir]
+      if options[:fcrepo_home_dir]
+        options[:fcrepo_home_dir]
+      elsif defined? Rails
+        File.join(Rails.root, 'tmp', 'fcrepo4-data')
+      else
+        Dir.mktmpdir
+      end
     end
 
     def port
