@@ -5,6 +5,12 @@ require 'optparse'
 
 options = {}
 
+subtext = <<HELP
+Commonly used command are:
+   clean :     cleans all data from fedora based on configuration options
+See 'fcrepo_wrapper COMMAND --help' for more information on a specific command.
+HELP
+
 args = OptionParser.new do |opts|
   opts.banner = "Usage: fcrepo_wrapper [options]"
 
@@ -44,9 +50,21 @@ args = OptionParser.new do |opts|
     puts opts
     exit
   end
+
+  opts.separator ""
+  opts.separator subtext
 end
 
+subcommands = {
+    'clean' => OptionParser.new do |opts|
+      opts.banner = "Usage: clean"
+    end,
+}
+
 begin
+  args.order!
+  command = ARGV.shift
+  subcommands[command].order! if command
   args.parse!
 rescue => error
   $stderr.puts "ERROR: #{error}\n"
@@ -58,6 +76,13 @@ end
 options[:verbose] = true if options[:verbose].nil?
 
 instance = FcrepoWrapper.default_instance(options)
+
+if command == 'clean'
+  $stderr.puts "cleaning #{instance.instance_dir}..."
+  instance.clean!
+  exit 0
+end
+
 $stderr.print "Starting Fedora #{instance.version} on port #{instance.port} ... "
 instance.wrap do |conn|
   $stderr.puts "http://#{instance.host}:#{instance.port}/"
