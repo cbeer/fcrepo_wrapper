@@ -47,4 +47,11 @@ $ fcrepo_wrapper -config <path_to_config_file>
 | version         | Fedora version to download and install |
 | version_file    | Local path to store the currently installed version number |
 
+### Cleaning your repository from the command line
+
+To clean out data that is being stored in you FcrepoWrapper explicitly run:
+```
+$ fcrepo_wrapper <configuration options> clean
+```
+***Note*** You must use the same configuration options on the clean command as you do on the run command to clean the correct instance.
 
