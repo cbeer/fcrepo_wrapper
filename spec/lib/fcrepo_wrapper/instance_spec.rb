@@ -20,7 +20,7 @@ describe FcrepoWrapper::Instance do
 
   describe "#version" do
     subject { wrapper.version }
-    it { is_expected.to eq '4.5.0' }
+    it { is_expected.to eq FcrepoWrapper.default_fcrepo_version }
   end
 
   describe "#md5" do
