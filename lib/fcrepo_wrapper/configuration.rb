@@ -135,7 +135,7 @@ module FcrepoWrapper
       end
 
       def default_configuration_paths
-        ['.fcrepo_wrapper', '~/.fcrepo_wrapper']
+        ['./config/fcrepo_wrapper.yml', '.fcrepo_wrapper', '~/.fcrepo_wrapper']
       end
 
       def default_download_dir
