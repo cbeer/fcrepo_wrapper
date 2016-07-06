@@ -139,7 +139,7 @@ module FcrepoWrapper
       end
 
       def default_download_dir
-        if defined? Rails
+        if defined?(Rails) && Rails.root
           File.join(Rails.root, 'tmp')
         else
           Dir.tmpdir

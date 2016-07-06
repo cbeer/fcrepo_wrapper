@@ -60,4 +60,14 @@ describe FcrepoWrapper::Configuration do
     subject { config.ignore_md5sum }
     it { is_expected.to be false }
   end
+
+  describe "#default_download_path" do
+    let(:rails)   { double("Raylz", root: nil) }
+    let(:options) { {} }
+    context "when Rails.root is nil" do
+      before { stub_const("FcrepoWrapper::Configuration::Rails", rails) }
+      subject { config.default_download_path }
+      it { is_expected.to start_with(Dir.tmpdir) }
+    end
+  end
 end
