@@ -72,9 +72,6 @@ rescue => error
   exit 1
 end
 
-# default to verbose
-options[:verbose] = true if options[:verbose].nil?
-
 instance = FcrepoWrapper.default_instance(options)
 
 if command == 'clean'
