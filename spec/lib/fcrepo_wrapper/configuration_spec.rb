@@ -40,7 +40,25 @@ describe FcrepoWrapper::Configuration do
     it "doesn't cast numerics to strings" do
       expect(config.port).to eq 9999
     end
+  end
 
+  describe "#load_configs" do
+    before do
+      allow(config).to receive(:default_configuration_paths).and_return([])
+    end
+    context 'with a single config file' do
+      let(:options) { { config: 'spec/fixtures/sample_config.yml' } }
+      it "uses values from the config file" do
+        expect(config.port).to eq 9999
+      end
+    end
+    context 'with multiple config files' do
+      let(:options) { { config: ['spec/fixtures/sample_config.yml', 'spec/fixtures/another_sample_config.yml'] } }
+      it "uses values from the config file" do
+        expect(config.port).to eq 9998
+        expect(config.verbose?).to eq true
+      end
+    end
   end
 
   describe "#validate" do
