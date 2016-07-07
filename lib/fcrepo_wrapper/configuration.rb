@@ -6,8 +6,9 @@ module FcrepoWrapper
   class Configuration
     attr_reader :options
     def initialize(options)
-      @options = read_config(options[:config], options[:verbose])
-                   .merge options
+      @config = options[:config]
+      @verbose = options[:verbose]
+      @options = load_configs(Array(options[:config])).merge(options)
     end
 
     def instance_dir
@@ -63,7 +64,7 @@ module FcrepoWrapper
     end
 
     def verbose?
-      !!options.fetch(:verbose, false)
+      @verbose || (options && !!options.fetch(:verbose, false))
     end
 
     def managed?
@@ -114,28 +115,34 @@ module FcrepoWrapper
 
     private
 
-      def read_config(config_file, verbose)
-        default_configuration_paths.each do |p|
+      def load_configs(config_files)
+        config = {}
+
+        (default_configuration_paths + config_files.compact).each do |p|
           path = File.expand_path(p)
-          config_file ||= path if File.exist? path
+          next unless File.exist? path
+          config.merge!(read_config(path))
         end
 
-        unless config_file
-          $stdout.puts "No config specified" if verbose
-          return {}
-        end
+        config
+      end
 
-        $stdout.puts "Loading configuration from #{config_file}" if verbose
+      def read_config(config_file)
+        $stdout.puts "Loading configuration from #{config_file}" if verbose?
         config = YAML.load(ERB.new(IO.read(config_file)).result(binding))
         unless config
-          $stderr.puts "Unable to parse config #{config_file}" if verbose
+          $stderr.puts "Unable to parse config #{config_file}" if verbose?
           return {}
         end
-        config.each_with_object({}) { |(k, v), h| h[k.to_sym] = v }
+        convert_keys(config)
+      end
+
+      def convert_keys(hash)
+        hash.each_with_object({}) { |(k, v), h| h[k.to_sym] = v }
       end
 
       def default_configuration_paths
-        ['.fcrepo_wrapper', '~/.fcrepo_wrapper']
+        ['~/.fcrepo_wrapper.yml', '~/.fcrepo_wrapper', '.fcrepo_wrapper.yml', '.fcrepo_wrapper']
       end
 
       def default_download_dir
