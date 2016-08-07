@@ -91,6 +91,8 @@ instance.wrap do |conn|
       sleep 1
     end
   rescue Interrupt
+    Signal.trap("SIGTERM") { "IGNORE" }
+    Signal.trap("SIGINT") { "IGNORE" }
     $stderr.puts "Fedora is shutting down."
   end
 end
