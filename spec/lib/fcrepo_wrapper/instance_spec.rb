@@ -29,8 +29,8 @@ describe FcrepoWrapper::Instance do
   end
 
   describe "#instance_dir" do
-    subject { File.exists?(wrapper.instance_dir) }
-    it { is_expected.to be true }
+    subject { wrapper.instance_dir }
+    it { is_expected.to start_with Dir.tmpdir }
   end
 
   describe "#options" do
