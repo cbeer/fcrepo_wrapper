@@ -26,6 +26,10 @@ args = OptionParser.new do |opts|
     options[:enable_jms] = v
   end
 
+  opts.on("--log-level LEVEL", "Specify the level for fcrepo.log (ERROR, WARN, INFO, DEBUG, TRACE)") do |level|
+    options[:log_level] = level.upcase
+  end
+
   opts.on("--version VERSION", "Specify a fcrepo version to download (default: #{FcrepoWrapper.default_fcrepo_version})") do |v|
     options[:version] = v
   end

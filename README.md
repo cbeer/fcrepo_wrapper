@@ -39,6 +39,7 @@ $ fcrepo_wrapper -config <path_to_config_file>
 | fedora_options  | *(Hash)* |
 | ignore_md5sum   | *(Boolean)* suppress checksum error messages |
 | instance_dir    | Directory to store the fedora jar file |
+| log_level       | Verbosity of `fcrepo.log`: ERROR, WARN, INFO, DEBUG, TRACE (default: WARN) |
 | md5sum          | Path/URL to MD5 checksum |
 | port            | Port to run Fedora on |
 | url             | URL of the jar file to download |
@@ -54,4 +55,3 @@ To clean out data that is being stored in you FcrepoWrapper explicitly run:
 $ fcrepo_wrapper <configuration options> clean
 ```
 ***Note*** You must use the same configuration options on the clean command as you do on the run command to clean the correct instance.
-
