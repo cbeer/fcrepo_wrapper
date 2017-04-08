@@ -2,7 +2,6 @@ require 'coveralls'
 Coveralls.wear!
 
 require 'fcrepo_wrapper'
-require 'simple_solr_client'
 
 require 'rspec'
 
