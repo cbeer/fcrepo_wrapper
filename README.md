@@ -3,7 +3,7 @@
 Wrap any task with a Fcrepo instance:
 
 ```ruby
-FcrepoWrapper.wrap do |solr|
+FcrepoWrapper.wrap do |fedora_repo|
   # Something that requires Fcrepo
 end
 ```
