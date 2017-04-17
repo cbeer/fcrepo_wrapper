@@ -35,7 +35,7 @@ $ fcrepo_wrapper -config <path_to_config_file>
 |-----------------|-----------------------------------------|
 | download_dir    | Local path for storing the downloaded jar & md5 file |
 | env             | *(Hash)* |
-| fcrepo_home_dir | Directory to store fedora repoistory data files |
+| fcrepo_home_dir | Directory to store fedora repository data files |
 | fedora_options  | *(Hash)* |
 | ignore_md5sum   | *(Boolean)* suppress checksum error messages |
 | instance_dir    | Directory to store the fedora jar file |
@@ -54,4 +54,3 @@ To clean out data that is being stored in you FcrepoWrapper explicitly run:
 $ fcrepo_wrapper <configuration options> clean
 ```
 ***Note*** You must use the same configuration options on the clean command as you do on the run command to clean the correct instance.
-
