@@ -7,7 +7,8 @@ options = {}
 
 subtext = <<HELP
 Commonly used command are:
-   clean :     cleans all data from fedora based on configuration options
+   clean :     stop and clean all data from fedora based on configuration options
+   purge :     as in 'clean', but also includes download files
 See 'fcrepo_wrapper COMMAND --help' for more information on a specific command.
 HELP
 
@@ -59,6 +60,9 @@ subcommands = {
     'clean' => OptionParser.new do |opts|
       opts.banner = "Usage: clean"
     end,
+    'purge' => OptionParser.new do |opts|
+      opts.banner = "Usage: purge"
+    end,
 }
 
 begin
@@ -77,10 +81,17 @@ end
 
 instance = FcrepoWrapper.default_instance(options)
 
-if command == 'clean'
+case command
+when 'clean'
   $stderr.puts "cleaning #{instance.instance_dir}..."
   instance.clean!
   exit 0
+when 'purge'
+  $stderr.puts "cleaning #{instance.instance_dir} and download files..."
+  instance.clean!(true)
+  exit 0
+else
+  exit 1
 end
 
 $stderr.print "Starting Fedora #{instance.version} on port #{instance.port} ... "
