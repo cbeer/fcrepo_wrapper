@@ -7,7 +7,7 @@ require 'fcrepo_wrapper/instance'
 
 module FcrepoWrapper
   def self.default_fcrepo_version
-    '4.7.2'
+    '4.7.3'
   end
 
   def self.default_fcrepo_port
