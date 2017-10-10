@@ -59,6 +59,10 @@ module FcrepoWrapper
       options.fetch(:fcrepo_options, headless: nil)
     end
 
+    def log_level
+      options.fetch(:log_level, "WARN")
+    end
+
     def env
       options.fetch(:env, {})
     end
@@ -77,15 +81,10 @@ module FcrepoWrapper
     end
 
     def default_java_options
-      ['-Dfcrepo.log.http.api=WARN',
-      # To avoid "WARN: The namespace of predicate:
-      # info:fedora/fedora-system:def/relations-external#isPartOf
-      # was possibly misinterpreted as:
-      # info:fedora/fedora-system:def/relations-external#."
-      '-Dfcrepo.log.kernel=ERROR',
-      ("-Dfcrepo.home=#{fcrepo_home_dir}" if fcrepo_home_dir),
-      ("-Dfcrepo.spring.jms.configuration=#{spring_noop_file}" unless jms_enabled?),
-      '-Xmx512m'].compact
+      ["-Dfcrepo.log=#{log_level}",
+       ("-Dfcrepo.home=#{fcrepo_home_dir}" if fcrepo_home_dir),
+       ("-Dfcrepo.spring.jms.configuration=#{spring_noop_file}" unless jms_enabled?),
+       '-Xmx512m'].compact
     end
 
     def fcrepo_home_dir
