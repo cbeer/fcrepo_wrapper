@@ -8,7 +8,7 @@ Gem::Specification.new do |spec|
   spec.version       = FcrepoWrapper::VERSION
   spec.authors       = ["Chris Beer"]
   spec.email         = ["chris@cbeer.info"]
-  spec.summary       = %q{Solr 5 service wrapper}
+  spec.summary       = %q{Fedora commons repository service wrapper}
   spec.homepage      = "https://github.com/cbeer/fcrepo_wrapper"
   spec.license       = "MIT"
 
