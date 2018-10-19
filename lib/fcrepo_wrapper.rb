@@ -4,6 +4,7 @@ require 'fcrepo_wrapper/settings'
 require 'fcrepo_wrapper/downloader'
 require 'fcrepo_wrapper/md5'
 require 'fcrepo_wrapper/instance'
+require 'fcrepo_wrapper/railtie' if defined?(Rails)
 
 module FcrepoWrapper
   def self.default_fcrepo_version
