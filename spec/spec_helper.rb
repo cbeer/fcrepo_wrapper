@@ -1,6 +1,3 @@
-require 'coveralls'
-Coveralls.wear!
-
 require 'fcrepo_wrapper'
 
 require 'rspec'
