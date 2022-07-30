@@ -93,7 +93,7 @@ module FcrepoWrapper
       if options[:fcrepo_home_dir]
         options[:fcrepo_home_dir]
       elsif defined? Rails
-        File.join(Rails.root, 'tmp', 'fcrepo4-data')
+        File.join(Rails.root, 'tmp', 'fcrepo-data')
       else
         Dir.mktmpdir
       end
