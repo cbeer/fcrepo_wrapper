@@ -52,7 +52,7 @@ module FcrepoWrapper
     end
 
     def md5url
-      "https://github.com/fcrepo4/fcrepo4/releases/download/fcrepo-#{version}/fcrepo-webapp-#{version}-jetty-console.jar.md5"
+      "https://github.com/fcrepo/fcrepo/releases/download/fcrepo-#{version}/fcrepo-webapp-#{version}-jetty-console.jar.md5"
     end
 
     def fcrepo_options
@@ -160,7 +160,7 @@ module FcrepoWrapper
       end
 
       def default_download_url
-        @default_url ||= "https://github.com/fcrepo4/fcrepo4/releases/download/fcrepo-#{version}/fcrepo-webapp-#{version}-jetty-console.jar"
+        @default_url ||= "https://github.com/fcrepo/fcrepo/releases/download/fcrepo-#{version}/fcrepo-webapp-#{version}-jetty-console.jar"
       end
 
       def random_open_port
