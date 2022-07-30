@@ -110,7 +110,7 @@ module FcrepoWrapper
         end
 
         true
-      rescue Errno::ECONNREFUSED, Errno::EINVAL
+      rescue Errno::ECONNREFUSED, Errno::EINVAL, Errno::ECONNRESET
         false
       end
     end

@@ -29,7 +29,7 @@ module FcrepoWrapper
       end
 
       def read_file
-        open(md5file).read.split(" ").first
+        open(md5file).read.split(" ").map(&:strip).find { |x| x.length == 32 && x =~ /^[0-9a-f]+$/ }
       end
 
       def md5file
@@ -41,4 +41,3 @@ module FcrepoWrapper
       end
   end
 end
-

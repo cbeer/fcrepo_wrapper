@@ -52,7 +52,7 @@ module FcrepoWrapper
     end
 
     def md5url
-      "https://github.com/fcrepo4/fcrepo4/releases/download/fcrepo-#{version}/fcrepo-webapp-#{version}-jetty-console.jar.md5"
+      "https://github.com/fcrepo/fcrepo/releases/download/fcrepo-#{version}/fcrepo-webapp-#{version}-jetty-console.jar.md5"
     end
 
     def fcrepo_options
@@ -85,6 +85,7 @@ module FcrepoWrapper
       '-Dfcrepo.log.kernel=ERROR',
       ("-Dfcrepo.home=#{fcrepo_home_dir}" if fcrepo_home_dir),
       ("-Dfcrepo.spring.jms.configuration=#{spring_noop_file}" unless jms_enabled?),
+      ('-Dfcrepo.jms.enabled=false' unless jms_enabled?),
       '-Xmx512m'].compact
     end
 
@@ -92,7 +93,7 @@ module FcrepoWrapper
       if options[:fcrepo_home_dir]
         options[:fcrepo_home_dir]
       elsif defined? Rails
-        File.join(Rails.root, 'tmp', 'fcrepo4-data')
+        File.join(Rails.root, 'tmp', 'fcrepo-data')
       else
         Dir.mktmpdir
       end
@@ -160,7 +161,7 @@ module FcrepoWrapper
       end
 
       def default_download_url
-        @default_url ||= "https://github.com/fcrepo4/fcrepo4/releases/download/fcrepo-#{version}/fcrepo-webapp-#{version}-jetty-console.jar"
+        @default_url ||= "https://github.com/fcrepo/fcrepo/releases/download/fcrepo-#{version}/fcrepo-webapp-#{version}-jetty-console.jar"
       end
 
       def random_open_port
@@ -178,7 +179,7 @@ module FcrepoWrapper
       end
 
       def jms_enabled?
-        options.fetch(:enable_jms, true)
+        options.fetch(:enable_jms, false)
       end
   end
 end

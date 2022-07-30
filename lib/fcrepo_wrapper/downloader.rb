@@ -1,14 +1,24 @@
+require 'http'
 require 'ruby-progressbar'
 
 module FcrepoWrapper
   class Downloader
     def self.fetch_with_progressbar(url, output)
       pbar = SafeProgressBar.new(title: File.basename(url), total: nil, format: '%t: |%B| %p%% (%e )')
-      open(url,
-           content_length_proc: ->(bytes) { pbar.total = bytes },
-           progress_proc: ->(bytes) { pbar.progress = bytes }) do |io|
-        IO.copy_stream(io, output)
+
+      response = HTTP.follow.get(url)
+      pbar.total = response.headers['content-length'].to_i
+
+      File.open(output, 'wb') do |f|
+        response.body.each do |chunk|
+          f.write(chunk)
+          pbar.progress += chunk.length
+        end
+
+        nil
       end
+    rescue HTTP::Error => e
+      raise SolrWrapperError, "Unable to download fcrepo from #{url}\n#{e}"
     end
 
     class SafeProgressBar < ProgressBar::Base
