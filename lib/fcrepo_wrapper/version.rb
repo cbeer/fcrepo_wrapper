@@ -1,3 +1,3 @@
 module FcrepoWrapper
-  VERSION = '0.10.0'.freeze
+  VERSION = '1.0.0.alpha'.freeze
 end
