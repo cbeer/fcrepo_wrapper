@@ -85,6 +85,7 @@ module FcrepoWrapper
       '-Dfcrepo.log.kernel=ERROR',
       ("-Dfcrepo.home=#{fcrepo_home_dir}" if fcrepo_home_dir),
       ("-Dfcrepo.spring.jms.configuration=#{spring_noop_file}" unless jms_enabled?),
+      ('-Dfcrepo.jms.enabled=false' unless jms_enabled?),
       '-Xmx512m'].compact
     end
 
@@ -178,7 +179,7 @@ module FcrepoWrapper
       end
 
       def jms_enabled?
-        options.fetch(:enable_jms, true)
+        options.fetch(:enable_jms, false)
       end
   end
 end
